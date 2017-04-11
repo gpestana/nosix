@@ -1,4 +1,4 @@
-##nosix.js
+## nosix.js
 
 nosix.js abstracts input validation, making it easier and straighforward for
 you to validate any type of input. 
@@ -35,7 +35,7 @@ const validate = nosix.init([fn1, fn2]);
 #### 2) Validate input
 The input can be of any type, as far as the validators are aware of it.
 
-```
+```javascript
 const nosix = require('nosix');
 
 const fn1 = input => input instanceof String ? true : `${input} must be a string';
@@ -78,20 +78,15 @@ validate.listValidators(); // Lists all active validators
 
 ### API
 
-#### validationModule = nosix.init([fn1, fn2, ...])
-Initializes a new validation module
+`validationModule = nosix.init([fn1, fn2, ...])` Initializes a new validation module
 
-#### validationModule(input)
-Validates any given input against validators
+`validationModule(input)` Validates any given input against validators
 
-#### validationModule.addValidator(fn)
-Adds a new validator to validation module in runtime
+`validationModule.addValidator(fn)` Adds a new validator to validation module in runtime
 
-#### validationModule.removeValidator(fn)
-Removes a validator from validation module in runtime
+`validationModule.removeValidator(fn)` Removes a validator from validation module in runtime
 
-#### validationModule.listValidators()
-Lists all active validators
+`validationModule.listValidators()` Lists all active validators
 
 ### License:
 
