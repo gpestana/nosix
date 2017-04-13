@@ -1,72 +1,49 @@
 const tap = require('tap');
-const ramda = require('ramda');
+const _ = require('ramda');
+const nosix = require('../index.js');
 
-const fn1 = i => true;
-const fn2 = i => true;
-const fn3 = i => false;
+const fn1 = i => typeof i == 'string' ? true : 'not a string';
+const fn2 = i => i != '' ? true : 'cannot be empty';
+const fn3 = i => 'always invalid';
 
-const testFactory = () => {
-  const stamped = require('../index.js');
-  return validate = stamped.init([fn1, fn2]);
-};
+const stringInput = "a string";
+const emptyStringInput = "";
 
-tap.test('init stamped with 2 validators', t => {
-  const validate = testFactory();
-  t.equal(validate.validators.length, 2, 'Stamped must have two validators');
-  t.equal(_.contains(validate.listValidators(), fn1), true, 
-    'fn1 is a validator');
-  t.equal(_.contains(validate.listValidators(), fn2), true, 
-    'fn1 is a validator');
-  t.equal(_.contains(validate.listValidators(), fn3), false, 
-    'fn3 is not a validator');
-  t.end(); 
+tap.test('test valid input async', t => {
+  nosix.validate(stringInput, [fn1, fn2], err => {
+    t.equal(err, null, 'async validate with valid input should return null obj');
+    t.end();
+  });
 });
 
-tap.test('adds a new validator in runtime', t => {
-  const validate = testFactory();
-  validate.addValidator(fn3);
-
-  t.equal(validate.listValidators(), 2, 'Stamped must have three validators');
-  t.equal(_.contains(validate.listValidators(), fn3), 
-    true, 'fn3 is a validator')
+tap.test('test valid input sync', t => {
+  const err = nosix.validateSync(stringInput, [fn1, fn2]);
+  t.equal(err, null, 'sync validate with valid input should return null obj');
   t.end();
 });
 
-tap.test('removes a validator in runtime', t => {
-  const validate = testFactory();
-  validate.removeValidator(fn1);
-
-  t.equal(validate.listValidators(), 1, 
-    'Stamped must have two validators after removing one');
-  t.equal(_.contains(validate.listValidators(), fn2), 
-    false, 'fn3 has been is not part of the validators list anymore);
+tap.test('test invalid input async', t => {
+  const err = nosix.validateSync('', [fn1, fn2]);
+  t.equal(err[0], 'cannot be empty', 
+    'async validate with invalid input should return correct error message');
   t.end();
 });
 
-tap.test('removes a validator that does not exist', t => {
-  const validate = testFactory();
-  const listValidators = validate.listValidators();
-  validate.removeValidator(fn3);
-
-  t.equal(listValidators, validate.listValidators(),
-    'removing a non existing validator does not change validation module');
+tap.test('test invalid input sync', t => {
+  const err = nosix.validateSync({a:'b'}, [fn1, fn2]);
+  
+  t.equal(err[0], 'not a string', 
+    'sync validate with invalid input should return correct error message');
   t.end();
 });
 
-tap.test('test valid and invalid input', t => {
-  const validate = testFactory();
-  const validator = input => input instanceof String 
-    ? true 
-    : '${input} not a string';
+tap.test('test invalid input with multiple errors', t => {
+  const err = nosix.validateSync('', [fn1, fn2, fn3]);
 
-  validate.addValidator(validator);
-  const resultsString = validate('String');
-  const obj = {input: 'object'};
-  const resutlsObject = validate(obj);
-
-  t.equal(resultsString, 'String', 'valid input should return input value');
-  t.equal(resultsObject, `${JSON.stringify(obj)} not a string`,
-    'invalid input should return validator error message');
+  t.equal(_.contains('cannot be empty', err), true, 
+    'validate with invalid input should return correct error messages');
+  t.equal(_.contains('always invalid', err), true, 
+    'validate with invalid input should return correct error messages');
   t.end();
 });
 
