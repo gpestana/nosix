@@ -6,6 +6,10 @@
   "scripts": {
     "test": "node tests"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com:gpestana/nosix.git"
+  },
   "keywords": [
     "input",
     "validation",
